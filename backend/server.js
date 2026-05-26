@@ -9,6 +9,7 @@ const { errorHandler } = require('./src/middleware/error.middleware');
 const authRoutes = require('./src/routes/auth.routes');
 const workspaceRoutes = require('./src/routes/workspace.routes');
 const taskRoutes = require('./src/routes/task.routes');
+const activityRoutes = require('./src/routes/activity.routes');
 
 const app = express();
 
@@ -43,6 +44,9 @@ app.use('/api/workspaces', workspaceRoutes);
 
 // Task routes are nested under workspaces: /api/workspaces/:workspaceId/tasks
 app.use('/api/workspaces/:workspaceId/tasks', taskRoutes);
+
+// Activity routes: /api/workspaces/:workspaceId/activity
+app.use('/api/workspaces/:workspaceId/activity', activityRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {
