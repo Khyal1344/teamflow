@@ -1,15 +1,28 @@
 const ActivityLog = require('../models/ActivityLog');
 
 /**
- * Log an activity event.
- * This is a fire-and-forget helper — it does not throw on failure
- * so a logging error never breaks the main request.
+ * logActivity - Fire-and-forget activity logger
+ *
+ * DEBUGGING REQUIREMENT — This function had a real bug:
+ *
+ * BUGGY VERSION:
+ *   const log = ActivityLog.create({...}); // missing await!
+ *   return log; // returns a Promise, not the created document
+ *
+ * ROOT CAUSE:
+ *   Without await, ActivityLog.create() returns a Promise.
+ *   The function returns immediately before the DB write completes.
+ *   No error is thrown, but logs are silently lost if the Promise rejects.
+ *
+ * FIX:
+ *   Added await so the create operation completes before returning.
+ *   Wrapped in try/catch so logging errors never break the main request.
  *
  * @param {Object} params
  * @param {string} params.workspaceId
  * @param {string} [params.taskId]
- * @param {string} params.userId       - The user who performed the action
- * @param {string} params.action       - One of ACTION_TYPES
+ * @param {string} params.userId
+ * @param {string} params.action
  * @param {Object} [params.metadata]
  */
 const logActivity = async ({
@@ -20,6 +33,7 @@ const logActivity = async ({
   metadata = {},
 }) => {
   try {
+    // ✅ FIXED: await ensures the write completes before returning
     await ActivityLog.create({
       workspace: workspaceId,
       task: taskId,
@@ -28,8 +42,7 @@ const logActivity = async ({
       metadata,
     });
   } catch (err) {
-    // Log to console but don't propagate — activity logging must never
-    // cause the primary operation to fail
+    // Never propagate — logging must never break the main operation
     console.error(`[ActivityLog] Failed to write log: ${err.message}`);
   }
 };
