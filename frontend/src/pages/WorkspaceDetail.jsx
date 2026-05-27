@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Layout from '../components/layout/Layout';
+import ActivityLog from '../components/workspace/ActivityLog';
 import '../components/layout/Layout.css';
+import '../components/workspace/Workspace.css';
 import { getWorkspace, inviteMember, removeMember, deleteWorkspace } from '../api/workspace';
 import { useAuth } from '../context/AuthContext';
 import toast from 'react-hot-toast';
@@ -17,18 +19,15 @@ const WorkspaceDetail = () => {
   const [showInviteModal, setShowInviteModal] = useState(false);
   const [inviteForm, setInviteForm] = useState({ email: '', role: 'member' });
   const [inviting, setInviting] = useState(false);
-  const [activeTab, setActiveTab] = useState('tasks');
+  const [activeTab, setActiveTab] = useState('members');
 
-  useEffect(() => {
-    fetchWorkspace();
-  }, [workspaceId]);
+  useEffect(() => { fetchWorkspace(); }, [workspaceId]);
 
   const fetchWorkspace = async () => {
     try {
       const res = await getWorkspace(workspaceId);
       const ws = res.data.workspace;
       setWorkspace(ws);
-      // Find current user's role
       const me = ws.members.find((m) => m.user._id === user._id);
       if (me) setMyRole(me.role);
     } catch {
@@ -83,13 +82,10 @@ const WorkspaceDetail = () => {
 
   return (
     <Layout>
-      {/* Header */}
       <div className="page-header">
         <div>
-          <button
-            onClick={() => navigate('/workspaces')}
-            style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#667eea', marginBottom: '8px', fontSize: '14px' }}
-          >
+          <button onClick={() => navigate('/workspaces')}
+            style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#667eea', marginBottom: '8px', fontSize: '14px' }}>
             ← Back to Workspaces
           </button>
           <h2 className="page-title">{workspace.name}</h2>
@@ -100,12 +96,8 @@ const WorkspaceDetail = () => {
         <div style={{ display: 'flex', gap: '10px' }}>
           {myRole === 'admin' && (
             <>
-              <button className="btn btn-primary" onClick={() => setShowInviteModal(true)}>
-                + Invite Member
-              </button>
-              <button className="btn btn-danger" onClick={handleDeleteWorkspace}>
-                Delete
-              </button>
+              <button className="btn btn-primary" onClick={() => setShowInviteModal(true)}>+ Invite Member</button>
+              <button className="btn btn-danger" onClick={handleDeleteWorkspace}>Delete</button>
             </>
           )}
         </div>
@@ -113,71 +105,66 @@ const WorkspaceDetail = () => {
 
       {/* Tabs */}
       <div className="tabs">
-        <button
-          className={`tab ${activeTab === 'tasks' ? 'active' : ''}`}
-          onClick={() => { setActiveTab('tasks'); navigate(`/workspaces/${workspaceId}/tasks`); }}
-        >
+        <button className={`tab ${activeTab === 'tasks' ? 'active' : ''}`}
+          onClick={() => { setActiveTab('tasks'); navigate(`/workspaces/${workspaceId}/tasks`); }}>
           📋 Tasks
         </button>
-        <button
-          className={`tab ${activeTab === 'members' ? 'active' : ''}`}
-          onClick={() => setActiveTab('members')}
-        >
+        <button className={`tab ${activeTab === 'members' ? 'active' : ''}`}
+          onClick={() => setActiveTab('members')}>
           👥 Members ({workspace.members.length})
+        </button>
+        <button className={`tab ${activeTab === 'activity' ? 'active' : ''}`}
+          onClick={() => setActiveTab('activity')}>
+          📜 Activity
         </button>
       </div>
 
       {/* Members Tab */}
-      <div className="card" style={{ marginTop: '20px' }}>
-        <table className="members-table">
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Email</th>
-              <th>Role</th>
-              <th>Joined</th>
-              {myRole === 'admin' && <th>Actions</th>}
-            </tr>
-          </thead>
-          <tbody>
-            {workspace.members.map((member) => (
-              <tr key={member.user._id}>
-                <td>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                    <div className="avatar" style={{ width: '32px', height: '32px', fontSize: '14px' }}>
-                      {member.user.name?.charAt(0).toUpperCase()}
-                    </div>
-                    {member.user.name}
-                    {member.user._id === user._id && (
-                      <span style={{ fontSize: '11px', color: '#9ca3af' }}>(you)</span>
-                    )}
-                  </div>
-                </td>
-                <td style={{ color: '#6b7280', fontSize: '14px' }}>{member.user.email}</td>
-                <td>
-                  <span className={`badge badge-${member.role}`}>{member.role}</span>
-                </td>
-                <td style={{ color: '#9ca3af', fontSize: '13px' }}>
-                  {new Date(member.joinedAt).toLocaleDateString()}
-                </td>
-                {myRole === 'admin' && (
-                  <td>
-                    {member.user._id !== user._id && (
-                      <button
-                        className="btn btn-danger"
-                        style={{ padding: '4px 12px', fontSize: '12px' }}
-                        onClick={() => handleRemoveMember(member.user._id, member.user.name)}
-                      >
-                        Remove
-                      </button>
-                    )}
-                  </td>
-                )}
+      {activeTab === 'members' && (
+        <div className="card" style={{ marginTop: '20px' }}>
+          <table className="members-table">
+            <thead>
+              <tr>
+                <th>Name</th><th>Email</th><th>Role</th><th>Joined</th>
+                {myRole === 'admin' && <th>Actions</th>}
               </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+            </thead>
+            <tbody>
+              {workspace.members.map((member) => (
+                <tr key={member.user._id}>
+                  <td>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                      <div className="avatar" style={{ width: '32px', height: '32px', fontSize: '14px' }}>
+                        {member.user.name?.charAt(0).toUpperCase()}
+                      </div>
+                      {member.user.name}
+                      {member.user._id === user._id && <span style={{ fontSize: '11px', color: '#9ca3af' }}>(you)</span>}
+                    </div>
+                  </td>
+                  <td style={{ color: '#6b7280', fontSize: '14px' }}>{member.user.email}</td>
+                  <td><span className={`badge badge-${member.role}`}>{member.role}</span></td>
+                  <td style={{ color: '#9ca3af', fontSize: '13px' }}>{new Date(member.joinedAt).toLocaleDateString()}</td>
+                  {myRole === 'admin' && (
+                    <td>
+                      {member.user._id !== user._id && (
+                        <button className="btn btn-danger" style={{ padding: '4px 12px', fontSize: '12px' }}
+                          onClick={() => handleRemoveMember(member.user._id, member.user.name)}>
+                          Remove
+                        </button>
+                      )}
+                    </td>
+                  )}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {/* Activity Tab */}
+      {activeTab === 'activity' && (
+        <ActivityLog workspaceId={workspaceId} />
+      )}
 
       {/* Invite Modal */}
       {showInviteModal && (
@@ -190,27 +177,19 @@ const WorkspaceDetail = () => {
             <form onSubmit={handleInvite}>
               <div className="form-group">
                 <label>Email Address</label>
-                <input
-                  type="email"
-                  value={inviteForm.email}
+                <input type="email" value={inviteForm.email}
                   onChange={(e) => setInviteForm({ ...inviteForm, email: e.target.value })}
-                  placeholder="member@example.com"
-                />
+                  placeholder="member@example.com" />
               </div>
               <div className="form-group">
                 <label>Role</label>
-                <select
-                  value={inviteForm.role}
-                  onChange={(e) => setInviteForm({ ...inviteForm, role: e.target.value })}
-                >
+                <select value={inviteForm.role} onChange={(e) => setInviteForm({ ...inviteForm, role: e.target.value })}>
                   <option value="member">Member</option>
                   <option value="admin">Admin</option>
                 </select>
               </div>
               <div className="form-actions">
-                <button type="button" className="btn btn-secondary" onClick={() => setShowInviteModal(false)}>
-                  Cancel
-                </button>
+                <button type="button" className="btn btn-secondary" onClick={() => setShowInviteModal(false)}>Cancel</button>
                 <button type="submit" className="btn btn-primary" disabled={inviting}>
                   {inviting ? 'Inviting...' : 'Send Invite'}
                 </button>
