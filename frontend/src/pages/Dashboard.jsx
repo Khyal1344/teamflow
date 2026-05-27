@@ -1,51 +1,78 @@
-import { useAuth } from '../context/AuthContext';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import toast from 'react-hot-toast';
+import Layout from '../components/layout/Layout';
+import '../components/layout/Layout.css';
+import { getWorkspaces } from '../api/workspace';
+import { useAuth } from '../context/AuthContext';
 
 const Dashboard = () => {
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
   const navigate = useNavigate();
+  const [workspaces, setWorkspaces] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const handleLogout = () => {
-    logout();
-    toast.success('Logged out');
-    navigate('/login');
-  };
+  useEffect(() => {
+    getWorkspaces()
+      .then((res) => setWorkspaces(res.data.workspaces))
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, []);
 
   return (
-    <div style={{ padding: '40px', maxWidth: '800px', margin: '0 auto' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
-        <h1 style={{ fontSize: '28px', color: '#667eea' }}>TeamFlow</h1>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-          <span style={{ color: '#6b7280' }}>Welcome, <strong>{user?.name}</strong></span>
-          <button
-            onClick={handleLogout}
-            style={{
-              padding: '8px 16px', background: '#ef4444', color: 'white',
-              border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: '600'
-            }}
-          >
-            Logout
-          </button>
+    <Layout>
+      <div className="page-header">
+        <h2 className="page-title">Welcome back, {user?.name} 👋</h2>
+      </div>
+
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px', marginBottom: '32px' }}>
+        <div className="card" style={{ textAlign: 'center' }}>
+          <div style={{ fontSize: '32px', marginBottom: '8px' }}>📁</div>
+          <div style={{ fontSize: '28px', fontWeight: '700', color: '#667eea' }}>
+            {loading ? '...' : workspaces.length}
+          </div>
+          <div style={{ color: '#6b7280', fontSize: '14px' }}>Workspaces</div>
+        </div>
+        <div className="card" style={{ textAlign: 'center' }}>
+          <div style={{ fontSize: '32px', marginBottom: '8px' }}>✅</div>
+          <div style={{ fontSize: '28px', fontWeight: '700', color: '#10b981' }}>0</div>
+          <div style={{ color: '#6b7280', fontSize: '14px' }}>Tasks Completed</div>
+        </div>
+        <div className="card" style={{ textAlign: 'center' }}>
+          <div style={{ fontSize: '32px', marginBottom: '8px' }}>⏳</div>
+          <div style={{ fontSize: '28px', fontWeight: '700', color: '#f59e0b' }}>0</div>
+          <div style={{ color: '#6b7280', fontSize: '14px' }}>In Progress</div>
         </div>
       </div>
 
-      <div style={{
-        background: 'white', borderRadius: '16px', padding: '40px',
-        boxShadow: '0 4px 20px rgba(0,0,0,0.08)', textAlign: 'center'
-      }}>
-        <h2 style={{ fontSize: '22px', marginBottom: '12px' }}>🎉 Auth is working!</h2>
-        <p style={{ color: '#6b7280' }}>Workspace and Task UI coming on Day 6 & 7</p>
-        <div style={{
-          marginTop: '24px', padding: '16px', background: '#f0f2f5',
-          borderRadius: '8px', textAlign: 'left'
-        }}>
-          <p><strong>User ID:</strong> {user?._id}</p>
-          <p><strong>Name:</strong> {user?.name}</p>
-          <p><strong>Email:</strong> {user?.email}</p>
+      <div className="card">
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+          <h3 style={{ fontSize: '16px', fontWeight: '700' }}>Your Workspaces</h3>
+          <button className="btn btn-primary" onClick={() => navigate('/workspaces')}>View All</button>
         </div>
+        {loading ? (
+          <div className="loading">Loading...</div>
+        ) : workspaces.length === 0 ? (
+          <div className="empty-state">
+            <h3>No workspaces yet</h3>
+            <p>Go to Workspaces to create your first one</p>
+          </div>
+        ) : (
+          <div className="workspace-grid">
+            {workspaces.slice(0, 4).map((ws) => (
+              <div key={ws._id} className="workspace-card card"
+                onClick={() => navigate(`/workspaces/${ws._id}`)}
+                style={{ cursor: 'pointer', border: '1px solid #e5e7eb' }}>
+                <div className="workspace-icon">{ws.name.charAt(0).toUpperCase()}</div>
+                <div className="workspace-info">
+                  <h3>{ws.name}</h3>
+                  <span className="member-count">👥 {ws.members?.length || 0} members</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
-    </div>
+    </Layout>
   );
 };
 

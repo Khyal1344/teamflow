@@ -5,6 +5,8 @@ import ProtectedRoute from './components/common/ProtectedRoute';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
+import Workspaces from './pages/Workspaces';
+import WorkspaceDetail from './pages/WorkspaceDetail';
 
 function App() {
   return (
@@ -15,14 +17,9 @@ function App() {
           <Route path="/" element={<Navigate to="/dashboard" replace />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
-          <Route
-            path="/dashboard"
-            element={
-              <ProtectedRoute>
-                <Dashboard />
-              </ProtectedRoute>
-            }
-          />
+          <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+          <Route path="/workspaces" element={<ProtectedRoute><Workspaces /></ProtectedRoute>} />
+          <Route path="/workspaces/:workspaceId" element={<ProtectedRoute><WorkspaceDetail /></ProtectedRoute>} />
         </Routes>
       </AuthProvider>
     </BrowserRouter>
