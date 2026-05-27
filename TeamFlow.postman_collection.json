@@ -1,0 +1,224 @@
+{
+  "info": {
+    "name": "TeamFlow API",
+    "description": "Complete API collection for TeamFlow",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:5000/api" },
+    { "key": "token", "value": "" },
+    { "key": "workspaceId", "value": "" },
+    { "key": "taskId", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/auth/register",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"Khyal Patel\",\n  \"email\": \"khyal@test.com\",\n  \"password\": \"123456\"\n}" }
+          }
+        },
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/auth/login",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"khyal@test.com\",\n  \"password\": \"123456\"\n}" }
+          }
+        },
+        {
+          "name": "Get Me",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/auth/me",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Workspaces",
+      "item": [
+        {
+          "name": "Get My Workspaces",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/workspaces",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }]
+          }
+        },
+        {
+          "name": "Create Workspace",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/workspaces",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }, { "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"Product Team\",\n  \"description\": \"Managing product roadmap\"\n}" }
+          }
+        },
+        {
+          "name": "Get Single Workspace",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/workspaces/{{workspaceId}}",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }]
+          }
+        },
+        {
+          "name": "Update Workspace",
+          "request": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/workspaces/{{workspaceId}}",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }, { "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"Updated Name\",\n  \"description\": \"Updated description\"\n}" }
+          }
+        },
+        {
+          "name": "Delete Workspace",
+          "request": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/workspaces/{{workspaceId}}",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }]
+          }
+        },
+        {
+          "name": "Get Members",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/workspaces/{{workspaceId}}/members",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }]
+          }
+        },
+        {
+          "name": "Invite Member",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/workspaces/{{workspaceId}}/members",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }, { "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"member@test.com\",\n  \"role\": \"member\"\n}" }
+          }
+        },
+        {
+          "name": "Remove Member",
+          "request": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/workspaces/{{workspaceId}}/members/USER_ID",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }]
+          }
+        },
+        {
+          "name": "Get Activity Logs",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/workspaces/{{workspaceId}}/activity?page=1&limit=20",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Tasks",
+      "item": [
+        {
+          "name": "Get All Tasks",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/workspaces/{{workspaceId}}/tasks?page=1&limit=10",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }]
+          }
+        },
+        {
+          "name": "Search Tasks",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/workspaces/{{workspaceId}}/tasks?search=homepage",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }]
+          }
+        },
+        {
+          "name": "Filter by Status",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/workspaces/{{workspaceId}}/tasks?status=todo",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }]
+          }
+        },
+        {
+          "name": "Filter by Priority",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/workspaces/{{workspaceId}}/tasks?priority=high",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }]
+          }
+        },
+        {
+          "name": "Create Task",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/workspaces/{{workspaceId}}/tasks",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }, { "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"title\": \"Design the homepage\",\n  \"description\": \"Create wireframes\",\n  \"priority\": \"high\",\n  \"status\": \"todo\",\n  \"dueDate\": \"2026-06-15\"\n}" }
+          }
+        },
+        {
+          "name": "Get Single Task",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/workspaces/{{workspaceId}}/tasks/{{taskId}}",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }]
+          }
+        },
+        {
+          "name": "Update Task",
+          "request": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/workspaces/{{workspaceId}}/tasks/{{taskId}}",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }, { "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"title\": \"Updated title\",\n  \"priority\": \"medium\"\n}" }
+          }
+        },
+        {
+          "name": "Update Task Status",
+          "request": {
+            "method": "PATCH",
+            "url": "{{baseUrl}}/workspaces/{{workspaceId}}/tasks/{{taskId}}/status",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }, { "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"status\": \"in-progress\"\n}" }
+          }
+        },
+        {
+          "name": "Assign Task",
+          "request": {
+            "method": "PATCH",
+            "url": "{{baseUrl}}/workspaces/{{workspaceId}}/tasks/{{taskId}}/assign",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }, { "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"assignedTo\": \"USER_ID_HERE\"\n}" }
+          }
+        },
+        {
+          "name": "Delete Task",
+          "request": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/workspaces/{{workspaceId}}/tasks/{{taskId}}",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Health Check",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": { "method": "GET", "url": "{{baseUrl}}/health" }
+        }
+      ]
+    }
+  ]
+}
